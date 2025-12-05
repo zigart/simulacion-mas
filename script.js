@@ -890,7 +890,7 @@ function drawPendulum(angle) {
     // Configuración del péndulo
     const pivotX = width / 2;
     const pivotY = 50;
-    const ropeLength = 180; // Longitud visual de la cuerda
+    const ropeLength = 80 + (params.pendulumLength - 0.5) * 64;
     const bobRadius = 20;
     
     // Calcular posición de la masa
