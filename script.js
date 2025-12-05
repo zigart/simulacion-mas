@@ -13,7 +13,7 @@ const params = {
     amplitude: 0.15,     // metros
     // Péndulo
     pendulumLength: 1.5, // metros
-    pendulumAngle: 20,   // grados
+    pendulumAngle: 10,   // grados
     gravity: 9.8,        // m/s²
     // Común
     phase: 0             // radianes
@@ -774,7 +774,7 @@ function setupEventListeners() {
     });
     // Ángulo - Input manual
     document.getElementById('pendulum-angle-value').addEventListener('input', (e) => {
-        validateAndUpdate(e.target.value, 5, 45, 'pendulumAngle', 'pendulum-angle', 'pendulum-angle-value', 'pendulum-angle-error', 'pendulumAngle', 0);
+        validateAndUpdate(e.target.value, 1, 15, 'pendulumAngle', 'pendulum-angle', 'pendulum-angle-value', 'pendulum-angle-error', 'pendulumAngle', 0);
     });
 
     // Gravedad - Slider
@@ -1427,7 +1427,7 @@ function drawPendulum(angle) {
 // =====================
 // Constantes para rangos fijos del eje Y
 const MAX_AMPLITUDE_SPRING = 0.50;  // Amplitud máxima del resorte (metros)
-const MAX_AMPLITUDE_PENDULUM = 45 * Math.PI / 180;  // Ángulo máximo del péndulo (radianes)
+const MAX_AMPLITUDE_PENDULUM = 15 * Math.PI / 180;  // Ángulo máximo del péndulo (radianes)
 
 function drawAllGraphs() {
     const omega = calculateOmega();
