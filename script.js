@@ -18,8 +18,7 @@ const params = {
     // Común
     phase: 0             // radianes
 };
-
-// Factor de escala: píxeles por metro (para visualización)
+//escala de visualización
 // Ajustado para que la amplitud máxima (0.5m) entre en el canvas
 const PIXELS_PER_METER = 320;
 
