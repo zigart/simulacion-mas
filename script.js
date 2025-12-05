@@ -1282,11 +1282,11 @@ function drawPendulum(angle) {
     const pivotX = width / 2;
     const pivotY = 50;
     const ropeLength = 80 + (params.pendulumLength - 0.5) * 64;
-    const bobRadius = 20;
+    const masaRadius = 20;
     
     // Calcular posición de la masa
-    const bobX = pivotX + ropeLength * Math.sin(angle);
-    const bobY = pivotY + ropeLength * Math.cos(angle);
+    const masaX = pivotX + ropeLength * Math.sin(angle);
+    const masaY = pivotY + ropeLength * Math.cos(angle);
     
     // Dibujar soporte superior
     ctx.fillStyle = '#4a5568';
@@ -1307,7 +1307,7 @@ function drawPendulum(angle) {
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(pivotX, pivotY);
-    ctx.lineTo(pivotX, pivotY + ropeLength + bobRadius + 20);
+    ctx.lineTo(pivotX, pivotY + ropeLength + masaRadius + 20);
     ctx.stroke();
     ctx.setLineDash([]);
     
@@ -1317,7 +1317,7 @@ function drawPendulum(angle) {
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(pivotX, pivotY);
-    ctx.lineTo(bobX, bobY);
+    ctx.lineTo(masaX, masaY);
     ctx.stroke();
     
     // Efecto de brillo en la cuerda
@@ -1325,22 +1325,22 @@ function drawPendulum(angle) {
     ctx.lineWidth = 6;
     ctx.stroke();
     
-    // Dibujar la masa (bob)
+    // Dibujar la masa del péndulo
     // Sombra
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.beginPath();
-    ctx.arc(bobX + 3, bobY + 3, bobRadius, 0, Math.PI * 2);
+    ctx.arc(masaX + 3, masaY + 3, masaRadius, 0, Math.PI * 2);
     ctx.fill();
     
     // Masa principal
-    const bobGradient = ctx.createRadialGradient(bobX - 6, bobY - 6, 0, bobX, bobY, bobRadius);
-    bobGradient.addColorStop(0, '#5a6a8a');
-    bobGradient.addColorStop(0.7, '#3d4a66');
-    bobGradient.addColorStop(1, '#2d3748');
+    const masaGradient = ctx.createRadialGradient(masaX - 6, masaY - 6, 0, masaX, masaY, masaRadius);
+    masaGradient.addColorStop(0, '#5a6a8a');
+    masaGradient.addColorStop(0.7, '#3d4a66');
+    masaGradient.addColorStop(1, '#2d3748');
     
-    ctx.fillStyle = bobGradient;
+    ctx.fillStyle = masaGradient;
     ctx.beginPath();
-    ctx.arc(bobX, bobY, bobRadius, 0, Math.PI * 2);
+    ctx.arc(masaX, masaY, masaRadius, 0, Math.PI * 2);
     ctx.fill();
     
     // Borde
@@ -1353,12 +1353,12 @@ function drawPendulum(angle) {
     ctx.fillStyle = '#e8eaed';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('m', bobX, bobY);
+    ctx.fillText('m', masaX, masaY);
     
     // Actualizar posición de la masa para detección de arrastre
-    dragState.massPosition.x = bobX;
-    dragState.massPosition.y = bobY;
-    dragState.massRadius = bobRadius;
+    dragState.massPosition.x = masaX;
+    dragState.massPosition.y = masaY;
+    dragState.massRadius = masaRadius;
     
     // Indicador de arrastre
     if (dragState.isDragging) {
@@ -1366,7 +1366,7 @@ function drawPendulum(angle) {
         ctx.lineWidth = 3;
         ctx.setLineDash([5, 5]);
         ctx.beginPath();
-        ctx.arc(bobX, bobY, bobRadius + 8, 0, Math.PI * 2);
+        ctx.arc(masaX, masaY, masaRadius + 8, 0, Math.PI * 2);
         ctx.stroke();
         ctx.setLineDash([]);
     }
@@ -1393,8 +1393,8 @@ function drawPendulum(angle) {
     }
     
     // Etiqueta de longitud
-    const midX = (pivotX + bobX) / 2 - 15;
-    const midY = (pivotY + bobY) / 2;
+    const midX = (pivotX + masaX) / 2 - 15;
+    const midY = (pivotY + masaY) / 2;
     ctx.font = '10px JetBrains Mono';
     ctx.fillStyle = '#6b7280';
     ctx.fillText('L', midX, midY);
