@@ -408,6 +408,12 @@ function initializeCharts() {
                             family: 'JetBrains Mono',
                             size: 10
                         }
+                    },
+                    ticks: {
+                        ...commonOptions.scales.y.ticks,
+                        callback: function(value) {
+                            return value.toFixed(1);
+                        }
                     }
                 }
             }
