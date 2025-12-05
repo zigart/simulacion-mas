@@ -32,6 +32,17 @@ let simulation = {
     timeScale: 1
 };
 
+// Estado de validación de inputs
+let validationState = {
+    mass: true,
+    springConstant: true,
+    amplitude: true,
+    pendulumLength: true,
+    pendulumAngle: true,
+    gravity: true,
+    phase: true
+};
+
 // Datos para los gráficos
 const graphData = {
     position: [],
@@ -62,11 +73,80 @@ const colors = {
 // =====================
 document.addEventListener('DOMContentLoaded', () => {
     initializeCanvases();
+    initializeInputValues();
     setupEventListeners();
     updateCalculatedValues();
+    updateStartButtonState();
     drawSpring(0);
     // Los gráficos de Chart.js se inicializan vacíos
 });
+
+function initializeInputValues() {
+    // Inicializar valores de los inputs con los valores de params
+    document.getElementById('mass-value').value = params.mass.toFixed(1);
+    document.getElementById('spring-constant-value').value = params.springConstant;
+    document.getElementById('amplitude-value').value = params.amplitude.toFixed(2);
+    document.getElementById('pendulum-length-value').value = params.pendulumLength.toFixed(1);
+    document.getElementById('pendulum-angle-value').value = params.pendulumAngle;
+    document.getElementById('gravity-value').value = params.gravity.toFixed(1);
+    document.getElementById('phase-value').value = params.phase.toFixed(1);
+}
+
+// Función auxiliar para mostrar/ocultar mensajes de error
+function showError(inputId, errorId, show, validationKey) {
+    const input = document.getElementById(inputId);
+    const error = document.getElementById(errorId);
+    
+    if (show) {
+        input.classList.add('error');
+        error.classList.add('show');
+        if (validationKey) validationState[validationKey] = false;
+    } else {
+        input.classList.remove('error');
+        error.classList.remove('show');
+        if (validationKey) validationState[validationKey] = true;
+    }
+    
+    updateStartButtonState();
+}
+
+// Función para actualizar el estado del botón de inicio
+function updateStartButtonState() {
+    const startBtn = document.getElementById('start-btn');
+    const hasErrors = Object.values(validationState).some(isValid => !isValid);
+    
+    if (hasErrors) {
+        startBtn.disabled = true;
+        startBtn.classList.add('disabled');
+        startBtn.title = 'Corrige los errores en los parámetros antes de iniciar';
+    } else {
+        startBtn.disabled = false;
+        startBtn.classList.remove('disabled');
+        startBtn.title = '';
+    }
+}
+
+// Función auxiliar para validar y actualizar valores
+function validateAndUpdate(value, min, max, paramName, sliderId, inputId, errorId, validationKey, decimals = 1) {
+    const numValue = parseFloat(value);
+    
+    if (isNaN(numValue)) {
+        showError(inputId, errorId, true, validationKey);
+        return false;
+    }
+    
+    if (numValue < min || numValue > max) {
+        showError(inputId, errorId, true, validationKey);
+        return false;
+    }
+    
+    // Valor válido
+    showError(inputId, errorId, false, validationKey);
+    params[paramName] = numValue;
+    document.getElementById(sliderId).value = numValue;
+    updateCalculatedValues();
+    return true;
+}
 
 function initializeCanvases() {
     // Canvas del resorte
@@ -427,47 +507,97 @@ function setupEventListeners() {
     document.getElementById('mode-pendulum').addEventListener('click', () => switchMode('pendulum'));
 
     // Controles del Resorte
+    // Masa - Slider
     document.getElementById('mass').addEventListener('input', (e) => {
         params.mass = parseFloat(e.target.value);
-        document.getElementById('mass-value').textContent = params.mass.toFixed(1);
+        document.getElementById('mass-value').value = params.mass.toFixed(1);
+        showError('mass-value', 'mass-error', false, 'mass');
         updateCalculatedValues();
     });
+    // Masa - Input manual
+    document.getElementById('mass-value').addEventListener('input', (e) => {
+        validateAndUpdate(e.target.value, 0.5, 5, 'mass', 'mass', 'mass-value', 'mass-error', 'mass', 1);
+    });
     
+    // Constante del resorte - Slider
     document.getElementById('spring-constant').addEventListener('input', (e) => {
         params.springConstant = parseFloat(e.target.value);
-        document.getElementById('spring-constant-value').textContent = params.springConstant;
+        document.getElementById('spring-constant-value').value = params.springConstant;
+        showError('spring-constant-value', 'spring-constant-error', false, 'springConstant');
         updateCalculatedValues();
     });
+    // Constante del resorte - Input manual
+    document.getElementById('spring-constant-value').addEventListener('input', (e) => {
+        validateAndUpdate(e.target.value, 10, 100, 'springConstant', 'spring-constant', 'spring-constant-value', 'spring-constant-error', 'springConstant', 0);
+    });
     
+    // Amplitud - Slider
     document.getElementById('amplitude').addEventListener('input', (e) => {
         params.amplitude = parseFloat(e.target.value);
-        document.getElementById('amplitude-value').textContent = params.amplitude.toFixed(2);
+        document.getElementById('amplitude-value').value = params.amplitude.toFixed(2);
+        showError('amplitude-value', 'amplitude-error', false, 'amplitude');
         updateCalculatedValues();
+    });
+    // Amplitud - Input manual
+    document.getElementById('amplitude-value').addEventListener('input', (e) => {
+        validateAndUpdate(e.target.value, 0.01, 0.50, 'amplitude', 'amplitude', 'amplitude-value', 'amplitude-error', 'amplitude', 2);
     });
 
     // Controles del Péndulo
+    // Longitud - Slider
     document.getElementById('pendulum-length').addEventListener('input', (e) => {
         params.pendulumLength = parseFloat(e.target.value);
-        document.getElementById('pendulum-length-value').textContent = params.pendulumLength.toFixed(1);
+        document.getElementById('pendulum-length-value').value = params.pendulumLength.toFixed(1);
+        showError('pendulum-length-value', 'pendulum-length-error', false, 'pendulumLength');
         updateCalculatedValues();
     });
+    // Longitud - Input manual
+    document.getElementById('pendulum-length-value').addEventListener('input', (e) => {
+        validateAndUpdate(e.target.value, 0.5, 3, 'pendulumLength', 'pendulum-length', 'pendulum-length-value', 'pendulum-length-error', 'pendulumLength', 1);
+    });
 
+    // Ángulo - Slider
     document.getElementById('pendulum-angle').addEventListener('input', (e) => {
         params.pendulumAngle = parseFloat(e.target.value);
-        document.getElementById('pendulum-angle-value').textContent = params.pendulumAngle;
+        document.getElementById('pendulum-angle-value').value = params.pendulumAngle;
+        showError('pendulum-angle-value', 'pendulum-angle-error', false, 'pendulumAngle');
         updateCalculatedValues();
+    });
+    // Ángulo - Input manual
+    document.getElementById('pendulum-angle-value').addEventListener('input', (e) => {
+        validateAndUpdate(e.target.value, 5, 45, 'pendulumAngle', 'pendulum-angle', 'pendulum-angle-value', 'pendulum-angle-error', 'pendulumAngle', 0);
     });
 
+    // Gravedad - Slider
     document.getElementById('gravity').addEventListener('input', (e) => {
         params.gravity = parseFloat(e.target.value);
-        document.getElementById('gravity-value').textContent = params.gravity.toFixed(1);
+        document.getElementById('gravity-value').value = params.gravity.toFixed(1);
+        showError('gravity-value', 'gravity-error', false, 'gravity');
         updateCalculatedValues();
     });
+    // Gravedad - Input manual
+    document.getElementById('gravity-value').addEventListener('input', (e) => {
+        validateAndUpdate(e.target.value, 1, 20, 'gravity', 'gravity', 'gravity-value', 'gravity-error', 'gravity', 1);
+    });
     
-    // Control común
+    // Control común - Fase
+    // Fase - Slider
     document.getElementById('phase').addEventListener('input', (e) => {
         params.phase = parseFloat(e.target.value);
-        document.getElementById('phase-value').textContent = params.phase.toFixed(1);
+        document.getElementById('phase-value').value = params.phase.toFixed(1);
+        showError('phase-value', 'phase-error', false, 'phase');
+    });
+    // Fase - Input manual
+    document.getElementById('phase-value').addEventListener('input', (e) => {
+        const value = parseFloat(e.target.value);
+        const isValid = !isNaN(value) && value >= 0 && value <= 6.28;
+        
+        showError('phase-value', 'phase-error', !isValid, 'phase');
+        
+        if (isValid) {
+            params.phase = value;
+            document.getElementById('phase').value = value;
+        }
     });
     
     // Botones de control
@@ -587,6 +717,13 @@ function updateCalculatedValues() {
 // Control de simulación
 // =====================
 function startSimulation() {
+    // Verificar que no haya errores de validación
+    const hasErrors = Object.values(validationState).some(isValid => !isValid);
+    if (hasErrors) {
+        console.warn('No se puede iniciar la simulación: hay errores en los parámetros');
+        return;
+    }
+    
     if (!simulation.isRunning) {
         simulation.isRunning = true;
         simulation.lastTimestamp = 0;

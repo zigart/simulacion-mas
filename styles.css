@@ -276,8 +276,108 @@ input[type="range"]::-moz-range-thumb {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.9rem;
     color: var(--accent-primary);
-    min-width: 80px;
+    min-width: 100px;
     text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.value-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.3rem 0.4rem;
+    width: 65px;
+    text-align: right;
+    transition: all 0.3s ease;
+}
+
+.value-input:focus {
+    outline: none;
+    border-color: var(--highlight);
+    background: var(--bg-input);
+}
+
+.value-input:hover {
+    border-color: var(--accent-primary);
+}
+
+/* Estilos personalizados para las flechas del input number (spinners) */
+/* Chrome, Safari, Edge, Opera */
+.value-input::-webkit-outer-spin-button,
+.value-input::-webkit-inner-spin-button {
+    opacity: 1;
+    height: 100%;
+    width: 18px;
+    cursor: pointer;
+    background: var(--bg-input);
+    border-left: 1px solid var(--border-color);
+    transition: background 0.2s ease;
+}
+
+.value-input:hover::-webkit-inner-spin-button,
+.value-input:hover::-webkit-outer-spin-button {
+    background: var(--bg-primary);
+}
+
+.value-input:focus::-webkit-inner-spin-button,
+.value-input:focus::-webkit-outer-spin-button {
+    background: var(--highlight);
+    background: linear-gradient(180deg, var(--highlight) 0%, rgba(79, 70, 229, 0.6) 100%);
+    border-left-color: var(--highlight);
+}
+
+/* Firefox */
+.value-input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.value-input::-moz-focus-inner {
+    border: 0;
+}
+
+.unit {
+    color: var(--accent-secondary);
+    font-size: 0.85rem;
+    min-width: 35px;
+}
+
+.error-message {
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-tertiary);
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(220, 38, 38, 0.1);
+    border-left: 3px solid var(--accent-tertiary);
+    border-radius: 4px;
+    animation: slideDown 0.3s ease;
+}
+
+.error-message.show {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.value-input.error {
+    border-color: var(--accent-tertiary);
+    background: rgba(220, 38, 38, 0.05);
 }
 
 /* Botones */
@@ -307,9 +407,24 @@ input[type="range"]::-moz-range-thumb {
     font-weight: 600;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     transform: translateY(-1px);
     filter: brightness(1.1);
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.btn-primary:disabled:hover,
+.btn-primary.disabled:hover {
+    transform: none;
+    filter: none;
 }
 
 .btn-secondary {

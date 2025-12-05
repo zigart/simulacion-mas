@@ -40,22 +40,34 @@
                         <label for="mass">Masa (m)</label>
                         <div class="input-wrapper">
                             <input type="range" id="mass" min="0.5" max="5" step="0.1" value="1">
-                            <span class="value-display"><span id="mass-value">1.0</span> kg</span>
+                            <div class="value-display">
+                                <input type="number" id="mass-value" min="0.5" max="5" step="0.1" value="1.0" class="value-input">
+                                <span class="unit">kg</span>
+                            </div>
                         </div>
+                        <span class="error-message" id="mass-error">Valor debe estar entre 0.5 y 5 kg</span>
                     </div>
                     <div class="control-group spring-control">
                         <label for="spring-constant">Constante del resorte (k)</label>
                         <div class="input-wrapper">
                             <input type="range" id="spring-constant" min="10" max="100" step="1" value="40">
-                            <span class="value-display"><span id="spring-constant-value">40</span> N/m</span>
+                            <div class="value-display">
+                                <input type="number" id="spring-constant-value" min="10" max="100" step="1" value="40" class="value-input">
+                                <span class="unit">N/m</span>
+                            </div>
                         </div>
+                        <span class="error-message" id="spring-constant-error">Valor debe estar entre 10 y 100 N/m</span>
                     </div>
                     <div class="control-group spring-control">
                         <label for="amplitude">Amplitud (A)</label>
                         <div class="input-wrapper">
                             <input type="range" id="amplitude" min="0.01" max="0.50" step="0.01" value="0.15">
-                            <span class="value-display"><span id="amplitude-value">0.15</span> m</span>
+                            <div class="value-display">
+                                <input type="number" id="amplitude-value" min="0.01" max="0.50" step="0.01" value="0.15" class="value-input">
+                                <span class="unit">m</span>
+                            </div>
                         </div>
+                        <span class="error-message" id="amplitude-error">Valor debe estar entre 0.01 y 0.50 m</span>
                     </div>
 
                     <!-- Controles del Péndulo -->
@@ -63,22 +75,34 @@
                         <label for="pendulum-length">Longitud (L)</label>
                         <div class="input-wrapper">
                             <input type="range" id="pendulum-length" min="0.5" max="3" step="0.1" value="1.5">
-                            <span class="value-display"><span id="pendulum-length-value">1.5</span> m</span>
+                            <div class="value-display">
+                                <input type="number" id="pendulum-length-value" min="0.5" max="3" step="0.1" value="1.5" class="value-input">
+                                <span class="unit">m</span>
+                            </div>
                         </div>
+                        <span class="error-message" id="pendulum-length-error">Valor debe estar entre 0.5 y 3 m</span>
                     </div>
                     <div class="control-group pendulum-control" style="display: none;">
                         <label for="pendulum-angle">Ángulo inicial (θ₀)</label>
                         <div class="input-wrapper">
                             <input type="range" id="pendulum-angle" min="5" max="45" step="1" value="20">
-                            <span class="value-display"><span id="pendulum-angle-value">20</span>°</span>
+                            <div class="value-display">
+                                <input type="number" id="pendulum-angle-value" min="5" max="45" step="1" value="20" class="value-input">
+                                <span class="unit">°</span>
+                            </div>
                         </div>
+                        <span class="error-message" id="pendulum-angle-error">Valor debe estar entre 5 y 45 grados</span>
                     </div>
                     <div class="control-group pendulum-control" style="display: none;">
                         <label for="gravity">Gravedad (g)</label>
                         <div class="input-wrapper">
                             <input type="range" id="gravity" min="1" max="20" step="0.1" value="9.8">
-                            <span class="value-display"><span id="gravity-value">9.8</span> m/s²</span>
+                            <div class="value-display">
+                                <input type="number" id="gravity-value" min="1" max="20" step="0.1" value="9.8" class="value-input">
+                                <span class="unit">m/s²</span>
+                            </div>
                         </div>
+                        <span class="error-message" id="gravity-error">Valor debe estar entre 1 y 20 m/s²</span>
                     </div>
 
                     <!-- Control común -->
@@ -86,8 +110,12 @@
                         <label for="phase">Fase inicial (φ)</label>
                         <div class="input-wrapper">
                             <input type="range" id="phase" min="0" max="6.28" step="0.1" value="0">
-                            <span class="value-display"><span id="phase-value">0</span> rad</span>
+                            <div class="value-display">
+                                <input type="number" id="phase-value" min="0" max="6.28" step="0.1" value="0" class="value-input">
+                                <span class="unit">rad</span>
+                            </div>
                         </div>
+                        <span class="error-message" id="phase-error">Valor debe estar entre 0 y 6.28 rad</span>
                     </div>
                 </div>
                 <div class="button-group">
