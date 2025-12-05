@@ -15,7 +15,7 @@
                 <img src="assets/untref_logo.png" alt="UNTREF Logo" class="university-logo">
                 <div class="header-text">
                     <h1>Movimiento Armónico Simple</h1>
-                    <p class="subtitle" id="simulation-subtitle">Simulación interactiva de un sistema masa-resorte</p>
+                    <p class="subtitle" id="simulation-subtitle">Simulación de un sistema masa-resorte</p>
                 </div>
             </div>
             <div class="course-info">
@@ -26,12 +26,12 @@
         <main>
             <!-- Panel de control -->
             <section class="control-panel">
-                <h2>⚙ Parámetros</h2>
+                <h2>Parámetros</h2>
                 
                 <!-- Selector de modo -->
                 <div class="mode-selector">
-                    <button id="mode-spring" class="mode-btn active">🔩 Resorte</button>
-                    <button id="mode-pendulum" class="mode-btn">🎯 Péndulo</button>
+                    <button id="mode-spring" class="mode-btn active">Resorte</button>
+                    <button id="mode-pendulum" class="mode-btn">Péndulo</button>
                 </div>
 
                 <div class="controls-grid">
@@ -129,21 +129,22 @@
             <div class="simulation-area">
                 <!-- Simulación del resorte -->
                 <section class="spring-simulation">
-                    <h2>🔩 Simulación</h2>
+                    <h2>Simulación</h2>
+                    <p class="drag-hint">Arrastra la masa para explorar diferentes puntos</p>
                     <div class="simulation-container">
                         <canvas id="spring-canvas" width="300" height="400"></canvas>
                         <div class="current-values">
                             <div class="value-item">
                                 <span class="label">Posición:</span>
-                                <span id="current-position" class="value">0.00</span> m
+                                <span id="current-position" class="value">0.00</span> <span id="position-unit">m</span>
                             </div>
                             <div class="value-item">
                                 <span class="label">Velocidad:</span>
-                                <span id="current-velocity" class="value">0.00</span> m/s
+                                <span id="current-velocity" class="value">0.00</span> <span id="velocity-unit">m/s</span>
                             </div>
                             <div class="value-item">
                                 <span class="label">Aceleración:</span>
-                                <span id="current-acceleration" class="value">0.00</span> m/s²
+                                <span id="current-acceleration" class="value">0.00</span> <span id="acceleration-unit">m/s²</span>
                             </div>
                             <div class="value-item">
                                 <span class="label">Tiempo:</span>
@@ -155,8 +156,8 @@
 
                 <!-- Gráficos -->
                 <section class="graphs-section">
-                    <h2>📈 Gráficos en Tiempo Real</h2>
-                    <p class="graphs-hint">💡 Pasa el mouse sobre los gráficos para ver valores exactos</p>
+                    <h2>Gráficos</h2>
+                    <p class="graphs-hint">Pasa el mouse sobre los gráficos para ver valores exactos</p>
                     <div class="graphs-container">
                         <div class="graph-wrapper position-graph">
                             <canvas id="position-graph"></canvas>
@@ -173,7 +174,7 @@
 
             <!-- Fórmulas -->
             <section class="formulas-section">
-                <h2>📐 Fórmulas del MAS</h2>
+                <h2>Fórmulas del MAS</h2>
                 <div class="formulas-grid">
                     <div class="formula-card">
                         <h3>Posición</h3>

@@ -20,7 +20,7 @@ const params = {
 };
 
 // Factor de escala: píxeles por metro (para visualización)
-// Ajustado para que la amplitud máxima (0.5m) quepa en el canvas
+// Ajustado para que la amplitud máxima (0.5m) entre en el canvas
 const PIXELS_PER_METER = 320;
 
 // Estado de la simulación
@@ -43,6 +43,14 @@ let validationState = {
     phase: true
 };
 
+// Estado de arrastre (drag)
+let dragState = {
+    isDragging: false,
+    wasRunning: false,
+    massPosition: { x: 0, y: 0 },
+    massRadius: 25
+};
+
 // Datos para los gráficos
 const graphData = {
     position: [],
@@ -58,9 +66,9 @@ let springCanvas, springCtx;
 // Charts de Chart.js
 let positionChart, velocityChart, accelerationChart;
 
-// Colores para los gráficos - Paleta UNTREF
+// Colores para los gráficos
 const colors = {
-    position: '#3b82f6',      // Azul institucional
+    position: '#3b82f6',      // Azul
     velocity: '#10b981',       // Verde
     acceleration: '#ef4444',   // Rojo
     grid: '#334155',
@@ -77,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     updateCalculatedValues();
     updateStartButtonState();
+    updateChartAxisLabels();
     drawSpring(0);
     // Los gráficos de Chart.js se inicializan vacíos
 });
@@ -153,8 +162,168 @@ function initializeCanvases() {
     springCanvas = document.getElementById('spring-canvas');
     springCtx = springCanvas.getContext('2d');
     
+    // Agregar event listeners para arrastrar
+    setupCanvasDragListeners();
+    
     // Inicializar gráficos de Chart.js
     initializeCharts();
+}
+
+function setupCanvasDragListeners() {
+    springCanvas.addEventListener('mousedown', handleCanvasMouseDown);
+    springCanvas.addEventListener('mousemove', handleCanvasMouseMove);
+    springCanvas.addEventListener('mouseup', handleCanvasMouseUp);
+    springCanvas.addEventListener('mouseleave', handleCanvasMouseUp);
+    
+    // Cambiar cursor cuando está sobre la masa
+    springCanvas.addEventListener('mousemove', (e) => {
+        if (!dragState.isDragging) {
+            const rect = springCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            if (isMouseOverMass(mouseX, mouseY)) {
+                springCanvas.style.cursor = 'grab';
+            } else {
+                springCanvas.style.cursor = 'default';
+            }
+        }
+    });
+}
+
+function isMouseOverMass(mouseX, mouseY) {
+    const distance = Math.sqrt(
+        Math.pow(mouseX - dragState.massPosition.x, 2) + 
+        Math.pow(mouseY - dragState.massPosition.y, 2)
+    );
+    return distance <= dragState.massRadius;
+}
+
+function handleCanvasMouseDown(e) {
+    const rect = springCanvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    if (isMouseOverMass(mouseX, mouseY)) {
+        dragState.isDragging = true;
+        dragState.wasRunning = simulation.isRunning;
+        springCanvas.style.cursor = 'grabbing';
+        
+        // Pausar la simulación si estaba corriendo
+        if (simulation.isRunning) {
+            pauseSimulation();
+        }
+        
+        // Reiniciar el tiempo a 0
+        simulation.time = 0;
+        
+        // Limpiar los gráficos
+        graphData.position = [];
+        graphData.velocity = [];
+        graphData.acceleration = [];
+        resetCharts();
+    }
+}
+
+function handleCanvasMouseMove(e) {
+    if (!dragState.isDragging) return;
+    
+    const rect = springCanvas.getBoundingClientRect();
+    const mouseY = e.clientY - rect.top;
+    
+    if (simulationMode === 'spring') {
+        handleSpringDrag(mouseY);
+    } else {
+        handlePendulumDrag(e.clientX - rect.left, mouseY);
+    }
+}
+
+function handleSpringDrag(mouseY) {
+    const width = springCanvas.width;
+    const height = springCanvas.height;
+    const equilibriumY = height / 2;
+    
+    // Calcular nuevo desplazamiento en píxeles
+    let newDisplacement = mouseY - equilibriumY;
+    
+    // Limitar el desplazamiento a la amplitud máxima
+    const maxDisplacementPixels = params.amplitude * PIXELS_PER_METER;
+    newDisplacement = Math.max(-maxDisplacementPixels, Math.min(maxDisplacementPixels, newDisplacement));
+    
+    // Convertir píxeles a metros
+    const newPosition = newDisplacement / PIXELS_PER_METER;
+    
+    // Durante el arrastre manual, calcular velocidad y aceleración basándose en la posición actual
+    // pero asumiendo que estamos en t=0 para que la simulación empiece desde aquí
+    const omega = calculateOmega();
+    const A = params.amplitude;
+    
+    // Calcular el tiempo interno correspondiente a esta posición para obtener v y a correctas
+    const ratio = Math.max(-1, Math.min(1, newPosition / A));
+    let internalTime = (Math.acos(ratio) - params.phase) / omega;
+    while (internalTime < 0) {
+        internalTime += calculatePeriod();
+    }
+    
+    // Calcular velocidad y aceleración usando el tiempo interno
+    const velocity = calculateVelocity(internalTime);
+    const acceleration = calculateAcceleration(internalTime);
+    
+    // Mantener el tiempo mostrado en 0 durante el arrastre
+    simulation.time = 0;
+    
+    // Dibujar
+    drawSpring(newDisplacement);
+    updateCurrentValues(newPosition, velocity, acceleration, simulation.time);
+}
+
+function handlePendulumDrag(mouseX, mouseY) {
+    const width = springCanvas.width;
+    const pivotX = width / 2;
+    const pivotY = 50;
+    const ropeLength = 80 + (params.pendulumLength - 0.5) * 64;
+    
+    // Calcular ángulo basado en la posición del mouse
+    const dx = mouseX - pivotX;
+    const dy = mouseY - pivotY;
+    let newAngle = Math.atan2(dx, dy); // atan2(x, y) porque el eje Y está invertido
+    
+    // Limitar el ángulo a la amplitud máxima (en radianes)
+    const maxAngle = params.pendulumAngle * Math.PI / 180;
+    newAngle = Math.max(-maxAngle, Math.min(maxAngle, newAngle));
+    
+    // Durante el arrastre manual, calcular velocidad y aceleración basándose en el ángulo actual
+    // pero asumiendo que estamos en t=0 para que la simulación empiece desde aquí
+    const omega = calculateOmega();
+    const A = params.pendulumAngle * Math.PI / 180;
+    
+    // Calcular el tiempo interno correspondiente a este ángulo para obtener v y a correctas
+    const ratio = Math.max(-1, Math.min(1, newAngle / A));
+    let internalTime = (Math.acos(ratio) - params.phase) / omega;
+    while (internalTime < 0) {
+        internalTime += calculatePeriod();
+    }
+    
+    // Calcular velocidad y aceleración usando el tiempo interno
+    const velocity = calculateVelocity(internalTime);
+    const acceleration = calculateAcceleration(internalTime);
+    
+    // Mantener el tiempo mostrado en 0 durante el arrastre
+    simulation.time = 0;
+    
+    // Dibujar
+    drawPendulum(newAngle);
+    updateCurrentValues(newAngle, velocity, acceleration, simulation.time);
+}
+
+function handleCanvasMouseUp() {
+    if (dragState.isDragging) {
+        dragState.isDragging = false;
+        springCanvas.style.cursor = 'default';
+        
+        // No reanudar automáticamente la simulación
+        // El usuario debe presionar "Iniciar" nuevamente si lo desea
+    }
 }
 
 function initializeCharts() {
@@ -336,7 +505,14 @@ function initializeCharts() {
                     ...commonOptions.plugins.tooltip,
                     callbacks: {
                         title: (items) => `t = ${items[0].parsed.x.toFixed(3)} s`,
-                        label: (item) => `x = ${item.parsed.y.toFixed(4)} m`
+                        label: (item) => {
+                            if (simulationMode === 'spring') {
+                                return `x = ${item.parsed.y.toFixed(4)} m`;
+                            } else {
+                                const angleDeg = item.parsed.y * 180 / Math.PI;
+                                return `θ = ${angleDeg.toFixed(2)}°`;
+                            }
+                        }
                     }
                 }
             },
@@ -404,7 +580,13 @@ function initializeCharts() {
                     ...commonOptions.plugins.tooltip,
                     callbacks: {
                         title: (items) => `t = ${items[0].parsed.x.toFixed(3)} s`,
-                        label: (item) => `v = ${item.parsed.y.toFixed(4)} m/s`
+                        label: (item) => {
+                            if (simulationMode === 'spring') {
+                                return `v = ${item.parsed.y.toFixed(4)} m/s`;
+                            } else {
+                                return `ω = ${item.parsed.y.toFixed(4)} rad/s`;
+                            }
+                        }
                     }
                 }
             },
@@ -472,7 +654,13 @@ function initializeCharts() {
                     ...commonOptions.plugins.tooltip,
                     callbacks: {
                         title: (items) => `t = ${items[0].parsed.x.toFixed(3)} s`,
-                        label: (item) => `a = ${item.parsed.y.toFixed(4)} m/s²`
+                        label: (item) => {
+                            if (simulationMode === 'spring') {
+                                return `a = ${item.parsed.y.toFixed(4)} m/s²`;
+                            } else {
+                                return `α = ${item.parsed.y.toFixed(4)} rad/s²`;
+                            }
+                        }
                     }
                 }
             },
@@ -616,9 +804,9 @@ function switchMode(mode) {
     // Actualizar subtítulo
     const subtitle = document.getElementById('simulation-subtitle');
     if (mode === 'spring') {
-        subtitle.textContent = 'Simulación interactiva de un sistema masa-resorte';
+        subtitle.textContent = 'Simulación de un sistema masa-resorte';
     } else {
-        subtitle.textContent = 'Simulación interactiva de un péndulo simple';
+        subtitle.textContent = 'Simulación de un péndulo simple';
     }
     
     // Mostrar/ocultar controles
@@ -637,14 +825,47 @@ function switchMode(mode) {
         el.style.display = mode === 'pendulum' ? 'block' : 'none';
     });
 
+    // Actualizar unidades en los valores actuales
+    if (mode === 'spring') {
+        document.getElementById('position-unit').textContent = 'm';
+        document.getElementById('velocity-unit').textContent = 'm/s';
+        document.getElementById('acceleration-unit').textContent = 'm/s²';
+    } else {
+        document.getElementById('position-unit').textContent = '°';
+        document.getElementById('velocity-unit').textContent = 'rad/s';
+        document.getElementById('acceleration-unit').textContent = 'rad/s²';
+    }
+
+    // Actualizar títulos de los ejes Y de los gráficos
+    updateChartAxisLabels();
+
     // Reiniciar simulación
     resetSimulation();
     updateCalculatedValues();
 }
 
+function updateChartAxisLabels() {
+    if (simulationMode === 'spring') {
+        positionChart.options.scales.y.title.text = 'x (m)';
+        velocityChart.options.scales.y.title.text = 'v (m/s)';
+        accelerationChart.options.scales.y.title.text = 'a (m/s²)';
+    } else {
+        positionChart.options.scales.y.title.text = 'θ (°)';
+        velocityChart.options.scales.y.title.text = 'ω (rad/s)';
+        accelerationChart.options.scales.y.title.text = 'α (rad/s²)';
+    }
+    
+    // Actualizar los gráficos para reflejar los cambios
+    positionChart.update('none');
+    velocityChart.update('none');
+    accelerationChart.update('none');
+}
+
 // =====================
 // Cálculos físicos
 // =====================
+
+//Frecuencia angular
 function calculateOmega() {
     if (simulationMode === 'spring') {
         return Math.sqrt(params.springConstant / params.mass);
@@ -653,14 +874,17 @@ function calculateOmega() {
     }
 }
 
+//Periodo
 function calculatePeriod() {
     return (2 * Math.PI) / calculateOmega();
 }
 
+//Frecuencia
 function calculateFrequency() {
     return 1 / calculatePeriod();
 }
 
+//Amplitud
 function getAmplitude() {
     if (simulationMode === 'spring') {
         return params.amplitude;
@@ -670,24 +894,28 @@ function getAmplitude() {
     }
 }
 
+//Posición
 function calculatePosition(t) {
     const omega = calculateOmega();
     const A = getAmplitude();
     return A * Math.cos(omega * t + params.phase);
 }
 
+//Velocidad
 function calculateVelocity(t) {
     const omega = calculateOmega();
     const A = getAmplitude();
     return -A * omega * Math.sin(omega * t + params.phase);
 }
 
+//Aceleración
 function calculateAcceleration(t) {
     const omega = calculateOmega();
     const A = getAmplitude();
     return -A * omega * omega * Math.cos(omega * t + params.phase);
 }
 
+//Actualizar valores calculados
 function updateCalculatedValues() {
     const omega = calculateOmega();
     const period = calculatePeriod();
@@ -779,7 +1007,7 @@ function animate(timestamp) {
     const velocity = calculateVelocity(simulation.time);
     const acceleration = calculateAcceleration(simulation.time);
     
-    // Guardar datos para gráficos
+    // Guardar datos para gráficos (valores angulares para ambos)
     addDataPoint(simulation.time, position, velocity, acceleration);
     
     // Dibujar según el modo
@@ -797,7 +1025,10 @@ function animate(timestamp) {
 }
 
 function addDataPoint(time, position, velocity, acceleration) {
-    graphData.position.push({ x: time, y: position });
+    // Para péndulo, convertir posición a grados para el gráfico
+    const positionForGraph = simulationMode === 'pendulum' ? position * 180 / Math.PI : position;
+    
+    graphData.position.push({ x: time, y: positionForGraph });
     graphData.velocity.push({ x: time, y: velocity });
     graphData.acceleration.push({ x: time, y: acceleration });
     
@@ -817,14 +1048,21 @@ function updateCurrentValues(position, velocity, acceleration, time) {
         document.getElementById('current-position').textContent = position.toFixed(3);
         document.getElementById('current-velocity').textContent = velocity.toFixed(3);
         document.getElementById('current-acceleration').textContent = acceleration.toFixed(3);
+        // Actualizar unidades para resorte
+        document.getElementById('position-unit').textContent = 'm';
+        document.getElementById('velocity-unit').textContent = 'm/s';
+        document.getElementById('acceleration-unit').textContent = 'm/s²';
     } else {
-        // Para péndulo, mostrar ángulo en grados
+        // Para péndulo: posición en grados, velocidad en rad/s, aceleración en rad/s²
         const angleDeg = position * 180 / Math.PI;
-        const angularVel = velocity * 180 / Math.PI;
-        const angularAcc = acceleration * 180 / Math.PI;
-        document.getElementById('current-position').textContent = angleDeg.toFixed(2) + '°';
-        document.getElementById('current-velocity').textContent = angularVel.toFixed(2) + '°/s';
-        document.getElementById('current-acceleration').textContent = angularAcc.toFixed(2) + '°/s²';
+        
+        document.getElementById('current-position').textContent = angleDeg.toFixed(2);
+        document.getElementById('current-velocity').textContent = velocity.toFixed(3);
+        document.getElementById('current-acceleration').textContent = acceleration.toFixed(3);
+        // Actualizar unidades para péndulo
+        document.getElementById('position-unit').textContent = '°';
+        document.getElementById('velocity-unit').textContent = 'rad/s';
+        document.getElementById('acceleration-unit').textContent = 'rad/s²';
     }
     document.getElementById('current-time').textContent = time.toFixed(2);
 }
@@ -881,6 +1119,22 @@ function drawSpring(displacement) {
     
     // Dibujar la masa
     drawMass(ctx, anchorX, massY, massRadius);
+    
+    // Actualizar posición de la masa para detección de arrastre
+    dragState.massPosition.x = anchorX;
+    dragState.massPosition.y = massY;
+    dragState.massRadius = massRadius;
+    
+    // Indicador de arrastre
+    if (dragState.isDragging) {
+        ctx.strokeStyle = '#ffd93d';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(anchorX, massY, massRadius + 8, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
     
     // Dibujar indicador de desplazamiento
     if (Math.abs(displacement) > 2) {
@@ -1101,6 +1355,22 @@ function drawPendulum(angle) {
     ctx.textBaseline = 'middle';
     ctx.fillText('m', bobX, bobY);
     
+    // Actualizar posición de la masa para detección de arrastre
+    dragState.massPosition.x = bobX;
+    dragState.massPosition.y = bobY;
+    dragState.massRadius = bobRadius;
+    
+    // Indicador de arrastre
+    if (dragState.isDragging) {
+        ctx.strokeStyle = '#ffd93d';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(bobX, bobY, bobRadius + 8, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    
     // Dibujar arco del ángulo
     if (Math.abs(angle) > 0.02) {
         const arcRadius = 40;
@@ -1144,7 +1414,13 @@ function drawAllGraphs() {
     const maxAmp = simulationMode === 'spring' ? MAX_AMPLITUDE_SPRING : MAX_AMPLITUDE_PENDULUM;
     
     // Rangos del eje Y
-    const maxPosition = maxAmp * 1.1;
+    // Para péndulo, posición en grados; velocidad y aceleración en rad/s y rad/s²
+    let maxPosition;
+    if (simulationMode === 'pendulum') {
+        maxPosition = (maxAmp * 180 / Math.PI) * 1.1; // Convertir a grados
+    } else {
+        maxPosition = maxAmp * 1.1;
+    }
     const maxVelocity = maxAmp * omega * 1.1;
     const maxAcceleration = maxAmp * omega * omega * 1.1;
     
@@ -1230,8 +1506,14 @@ function calculateKeyPoints(minTime, maxTime, type) {
             tMin = ((2 * n + 1) * Math.PI - phi) / omega;
             tZero1 = (Math.PI / 2 + 2 * Math.PI * n - phi) / omega;
             tZero2 = (3 * Math.PI / 2 + 2 * Math.PI * n - phi) / omega;
-            yMax = A;
-            yMin = -A;
+            // Para péndulo, convertir a grados
+            if (simulationMode === 'pendulum') {
+                yMax = A * 180 / Math.PI;
+                yMin = -A * 180 / Math.PI;
+            } else {
+                yMax = A;
+                yMin = -A;
+            }
         } else if (type === 'velocity') {
             // Velocidad: v(t) = -Aω·sin(ωt + φ)
             tMax = (3 * Math.PI / 2 + 2 * Math.PI * n - phi) / omega;
@@ -1272,7 +1554,14 @@ function resetCharts() {
     // Usar rangos basados en amplitud máxima y omega actual
     const omega = calculateOmega();
     const maxAmp = simulationMode === 'spring' ? MAX_AMPLITUDE_SPRING : MAX_AMPLITUDE_PENDULUM;
-    const maxPosition = maxAmp * 1.1;
+    
+    // Para péndulo, posición en grados
+    let maxPosition;
+    if (simulationMode === 'pendulum') {
+        maxPosition = (maxAmp * 180 / Math.PI) * 1.1; // Convertir a grados
+    } else {
+        maxPosition = maxAmp * 1.1;
+    }
     const maxVelocity = maxAmp * omega * 1.1;
     const maxAcceleration = maxAmp * omega * omega * 1.1;
     

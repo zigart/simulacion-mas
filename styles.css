@@ -467,6 +467,15 @@ input[type="range"]::-moz-range-thumb {
     background: var(--bg-card);
 }
 
+.drag-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    margin-top: -0.5rem;
+    font-style: italic;
+    text-align: center;
+}
+
 .simulation-container {
     display: flex;
     flex-direction: column;
