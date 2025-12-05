@@ -1,0 +1,634 @@
+/* Variables de color - Tema Sobrio Tecnológico */
+:root {
+    --bg-primary: #111318;
+    --bg-secondary: #181b22;
+    --bg-card: #1e2128;
+    --bg-input: #14161b;
+    --accent-primary: #6b7280;
+    --accent-secondary: #9ca3af;
+    --accent-tertiary: #dc2626;
+    --accent-warning: #d97706;
+    --accent-success: #059669;
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --border-color: #2d3138;
+    --graph-position: #6366f1;
+    --graph-velocity: #14b8a6;
+    --graph-acceleration: #f43f5e;
+    --shadow-glow: none;
+    --highlight: #4f46e5;
+}
+
+/* Reset y base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image: 
+        radial-gradient(ellipse at top, rgba(0, 212, 170, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(0, 163, 255, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-primary) 0%, #0d1520 100%);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header */
+header {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem 2rem;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--highlight);
+    border-radius: 8px 8px 0 0;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.university-logo {
+    height: 70px;
+    width: auto;
+    background: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header-text {
+    text-align: left;
+}
+
+.course-info {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.course-info span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: var(--bg-input);
+    padding: 0.35rem 0.8rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-text {
+        text-align: center;
+    }
+    
+    .university-logo {
+        height: 50px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Secciones */
+section {
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+section h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Panel de control */
+.control-panel {
+    background: var(--bg-card);
+}
+
+/* Selector de modo */
+.mode-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.mode-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+}
+
+.mode-btn.active {
+    background: var(--highlight);
+    border-color: var(--highlight);
+    color: white;
+    font-weight: 600;
+}
+
+.controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.control-group {
+    background: var(--bg-input);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
+
+.control-group:hover {
+    border-color: var(--accent-primary);
+}
+
+.control-group label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+input[type="range"] {
+    flex: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg-secondary);
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--highlight);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--highlight);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.value-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent-primary);
+    min-width: 80px;
+    text-align: right;
+}
+
+/* Botones */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--highlight);
+    color: white;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+}
+
+.btn-danger {
+    background: var(--bg-secondary);
+    color: var(--accent-tertiary);
+    border: 1px solid var(--accent-tertiary);
+}
+
+.btn-danger:hover {
+    background: var(--accent-tertiary);
+    color: var(--bg-primary);
+}
+
+/* Área de simulación */
+.simulation-area {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 1000px) {
+    .simulation-area {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Simulación del resorte */
+.spring-simulation {
+    background: var(--bg-card);
+}
+
+.simulation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#spring-canvas {
+    background: linear-gradient(180deg, #0d1321 0%, #151f2e 100%);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.current-values {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.value-item {
+    background: var(--bg-input);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    border: 1px solid var(--border-color);
+}
+
+.value-item .label {
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.value-item .value {
+    color: var(--highlight);
+    font-weight: 600;
+}
+
+/* Gráficos */
+.graphs-section h2 {
+    color: var(--text-primary);
+}
+
+.graphs-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.graphs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.graph-wrapper {
+    background: var(--bg-input);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    position: relative;
+    height: 280px;
+}
+
+.graph-wrapper.position-graph {
+    border-left: 3px solid var(--graph-position);
+}
+
+.graph-wrapper.velocity-graph {
+    border-left: 3px solid var(--graph-velocity);
+}
+
+.graph-wrapper.acceleration-graph {
+    border-left: 3px solid var(--graph-acceleration);
+}
+
+.graph-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Fórmulas */
+.formulas-section {
+    background: var(--bg-card);
+}
+
+.formulas-section h2 {
+    color: var(--text-primary);
+}
+
+.formulas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.formula-card {
+    background: var(--bg-input);
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.formula-card:hover {
+    border-color: var(--text-muted);
+}
+
+.formula-card h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    padding: 0.75rem;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--highlight);
+}
+
+.formula-card .description {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Valores calculados */
+.calculated-values {
+    background: var(--bg-input);
+    padding: 1.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--highlight);
+}
+
+.calculated-values h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.calc-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+}
+
+.calc-value .label {
+    color: var(--text-secondary);
+}
+
+.calc-value .value {
+    color: var(--highlight);
+    font-weight: 600;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+footer::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--highlight);
+    border-radius: 0 0 8px 8px;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.footer-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.footer-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.footer-year {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .controls-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .current-values {
+        grid-template-columns: 1fr;
+    }
+
+    .formulas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

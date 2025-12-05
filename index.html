@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Movimiento Armónico Simple</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <img src="assets/untref_logo.png" alt="UNTREF Logo" class="university-logo">
+                <div class="header-text">
+                    <h1>Movimiento Armónico Simple</h1>
+                    <p class="subtitle" id="simulation-subtitle">Simulación interactiva de un sistema masa-resorte</p>
+                </div>
+            </div>
+            <div class="course-info">
+                <span>Física I</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Panel de control -->
+            <section class="control-panel">
+                <h2>⚙ Parámetros</h2>
+                
+                <!-- Selector de modo -->
+                <div class="mode-selector">
+                    <button id="mode-spring" class="mode-btn active">🔩 Resorte</button>
+                    <button id="mode-pendulum" class="mode-btn">🎯 Péndulo</button>
+                </div>
+
+                <div class="controls-grid">
+                    <!-- Controles del Resorte -->
+                    <div class="control-group spring-control">
+                        <label for="mass">Masa (m)</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="mass" min="0.5" max="5" step="0.1" value="1">
+                            <span class="value-display"><span id="mass-value">1.0</span> kg</span>
+                        </div>
+                    </div>
+                    <div class="control-group spring-control">
+                        <label for="spring-constant">Constante del resorte (k)</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="spring-constant" min="10" max="100" step="1" value="40">
+                            <span class="value-display"><span id="spring-constant-value">40</span> N/m</span>
+                        </div>
+                    </div>
+                    <div class="control-group spring-control">
+                        <label for="amplitude">Amplitud (A)</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="amplitude" min="0.01" max="0.50" step="0.01" value="0.15">
+                            <span class="value-display"><span id="amplitude-value">0.15</span> m</span>
+                        </div>
+                    </div>
+
+                    <!-- Controles del Péndulo -->
+                    <div class="control-group pendulum-control" style="display: none;">
+                        <label for="pendulum-length">Longitud (L)</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="pendulum-length" min="0.5" max="3" step="0.1" value="1.5">
+                            <span class="value-display"><span id="pendulum-length-value">1.5</span> m</span>
+                        </div>
+                    </div>
+                    <div class="control-group pendulum-control" style="display: none;">
+                        <label for="pendulum-angle">Ángulo inicial (θ₀)</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="pendulum-angle" min="5" max="45" step="1" value="20">
+                            <span class="value-display"><span id="pendulum-angle-value">20</span>°</span>
+                        </div>
+                    </div>
+                    <div class="control-group pendulum-control" style="display: none;">
+                        <label for="gravity">Gravedad (g)</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="gravity" min="1" max="20" step="0.1" value="9.8">
+                            <span class="value-display"><span id="gravity-value">9.8</span> m/s²</span>
+                        </div>
+                    </div>
+
+                    <!-- Control común -->
+                    <div class="control-group">
+                        <label for="phase">Fase inicial (φ)</label>
+                        <div class="input-wrapper">
+                            <input type="range" id="phase" min="0" max="6.28" step="0.1" value="0">
+                            <span class="value-display"><span id="phase-value">0</span> rad</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="start-btn" class="btn btn-primary">▶ Iniciar</button>
+                    <button id="pause-btn" class="btn btn-secondary">⏸ Pausar</button>
+                    <button id="reset-btn" class="btn btn-danger">↺ Reiniciar</button>
+                </div>
+            </section>
+
+            <!-- Simulación y gráficos -->
+            <div class="simulation-area">
+                <!-- Simulación del resorte -->
+                <section class="spring-simulation">
+                    <h2>🔩 Simulación</h2>
+                    <div class="simulation-container">
+                        <canvas id="spring-canvas" width="300" height="400"></canvas>
+                        <div class="current-values">
+                            <div class="value-item">
+                                <span class="label">Posición:</span>
+                                <span id="current-position" class="value">0.00</span> m
+                            </div>
+                            <div class="value-item">
+                                <span class="label">Velocidad:</span>
+                                <span id="current-velocity" class="value">0.00</span> m/s
+                            </div>
+                            <div class="value-item">
+                                <span class="label">Aceleración:</span>
+                                <span id="current-acceleration" class="value">0.00</span> m/s²
+                            </div>
+                            <div class="value-item">
+                                <span class="label">Tiempo:</span>
+                                <span id="current-time" class="value">0.00</span> s
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gráficos -->
+                <section class="graphs-section">
+                    <h2>📈 Gráficos en Tiempo Real</h2>
+                    <p class="graphs-hint">💡 Pasa el mouse sobre los gráficos para ver valores exactos</p>
+                    <div class="graphs-container">
+                        <div class="graph-wrapper position-graph">
+                            <canvas id="position-graph"></canvas>
+                        </div>
+                        <div class="graph-wrapper velocity-graph">
+                            <canvas id="velocity-graph"></canvas>
+                        </div>
+                        <div class="graph-wrapper acceleration-graph">
+                            <canvas id="acceleration-graph"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Fórmulas -->
+            <section class="formulas-section">
+                <h2>📐 Fórmulas del MAS</h2>
+                <div class="formulas-grid">
+                    <div class="formula-card">
+                        <h3>Posición</h3>
+                        <div class="formula">x(t) = A · cos(ωt + φ)</div>
+                        <p class="description">Donde A es la amplitud, ω la frecuencia angular y φ la fase inicial</p>
+                    </div>
+                    <div class="formula-card">
+                        <h3>Velocidad</h3>
+                        <div class="formula">v(t) = -Aω · sin(ωt + φ)</div>
+                        <p class="description">Derivada de la posición respecto al tiempo</p>
+                    </div>
+                    <div class="formula-card">
+                        <h3>Aceleración</h3>
+                        <div class="formula">a(t) = -Aω² · cos(ωt + φ)</div>
+                        <p class="description">Derivada de la velocidad respecto al tiempo</p>
+                    </div>
+                    <div class="formula-card" id="formula-omega">
+                        <h3>Frecuencia Angular</h3>
+                        <div class="formula spring-formula">ω = √(k/m)</div>
+                        <div class="formula pendulum-formula" style="display: none;">ω = √(g/L)</div>
+                        <p class="description spring-formula">Depende de la constante del resorte (k) y la masa (m)</p>
+                        <p class="description pendulum-formula" style="display: none;">Depende de la gravedad (g) y la longitud (L)</p>
+                    </div>
+                    <div class="formula-card">
+                        <h3>Período</h3>
+                        <div class="formula">T = 2π/ω = 2π√(m/k)</div>
+                        <p class="description">Tiempo para completar un ciclo completo</p>
+                    </div>
+                    <div class="formula-card">
+                        <h3>Frecuencia</h3>
+                        <div class="formula">f = 1/T = ω/(2π)</div>
+                        <p class="description">Número de oscilaciones por segundo (Hz)</p>
+                    </div>
+                    <div class="formula-card">
+                        <h3>Energía Cinética</h3>
+                        <div class="formula">Ec = ½mv²</div>
+                        <p class="description">Energía asociada al movimiento de la masa</p>
+                    </div>
+                    <div class="formula-card">
+                        <h3>Energía Potencial</h3>
+                        <div class="formula">Ep = ½kx²</div>
+                        <p class="description">Energía almacenada en el resorte</p>
+                    </div>
+                </div>
+
+                <!-- Valores calculados -->
+                <div class="calculated-values">
+                    <h3>Valores Calculados</h3>
+                    <div class="values-grid">
+                        <div class="calc-value">
+                            <span class="label">Frecuencia angular (ω):</span>
+                            <span id="calc-omega" class="value">6.32</span> rad/s
+                        </div>
+                        <div class="calc-value">
+                            <span class="label">Período (T):</span>
+                            <span id="calc-period" class="value">0.99</span> s
+                        </div>
+                        <div class="calc-value">
+                            <span class="label">Frecuencia (f):</span>
+                            <span id="calc-frequency" class="value">1.01</span> Hz
+                        </div>
+                        <div class="calc-value">
+                            <span class="label">Velocidad máxima:</span>
+                            <span id="calc-vmax" class="value">3.79</span> m/s
+                        </div>
+                        <div class="calc-value">
+                            <span class="label">Aceleración máxima:</span>
+                            <span id="calc-amax" class="value">24.00</span> m/s²
+                        </div>
+                        <div class="calc-value">
+                            <span class="label">Energía Total:</span>
+                            <span id="calc-energy" class="value">0.72</span> J
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p class="footer-title">Simulador de Movimiento Armónico Simple</p>
+                <p class="footer-info">Física I — Universidad Nacional de Tres de Febrero</p>
+                <p class="footer-year">2024</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
