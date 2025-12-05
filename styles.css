@@ -364,6 +364,24 @@ input[type="range"]::-moz-range-thumb {
     display: block;
 }
 
+.warning-message {
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-warning);
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(217, 119, 6, 0.1);
+    border-left: 3px solid var(--accent-warning);
+    border-radius: 4px;
+    animation: slideDown 0.3s ease;
+    line-height: 1.4;
+}
+
+.warning-message.show {
+    display: block;
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;

@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCalculatedValues();
     updateStartButtonState();
     updateChartAxisLabels();
+    updatePendulumWarning();
     drawSpring(0);
     // Los gráficos de Chart.js se inicializan vacíos
 });
@@ -135,6 +136,19 @@ function updateStartButtonState() {
     }
 }
 
+// Función para mostrar/ocultar advertencia del péndulo
+function updatePendulumWarning() {
+    const warning = document.getElementById('pendulum-angle-warning');
+    if (!warning) return;
+    
+    // Solo mostrar advertencia si estamos en modo péndulo y el ángulo es mayor a 10°
+    if (simulationMode === 'pendulum' && params.pendulumAngle > 10) {
+        warning.classList.add('show');
+    } else {
+        warning.classList.remove('show');
+    }
+}
+
 // Función auxiliar para validar y actualizar valores
 function validateAndUpdate(value, min, max, paramName, sliderId, inputId, errorId, validationKey, decimals = 1) {
     const numValue = parseFloat(value);
@@ -154,6 +168,12 @@ function validateAndUpdate(value, min, max, paramName, sliderId, inputId, errorI
     params[paramName] = numValue;
     document.getElementById(sliderId).value = numValue;
     updateCalculatedValues();
+    
+    // Actualizar advertencia del péndulo si es el parámetro de ángulo
+    if (paramName === 'pendulumAngle') {
+        updatePendulumWarning();
+    }
+    
     return true;
 }
 
@@ -749,6 +769,7 @@ function setupEventListeners() {
         params.pendulumAngle = parseFloat(e.target.value);
         document.getElementById('pendulum-angle-value').value = params.pendulumAngle;
         showError('pendulum-angle-value', 'pendulum-angle-error', false, 'pendulumAngle');
+        updatePendulumWarning();
         updateCalculatedValues();
     });
     // Ángulo - Input manual
@@ -842,6 +863,7 @@ function switchMode(mode) {
     // Reiniciar simulación
     resetSimulation();
     updateCalculatedValues();
+    updatePendulumWarning();
 }
 
 function updateChartAxisLabels() {
